@@ -47,6 +47,7 @@ def transform():
             # Tranform a given pose
             transposed = listener.transformPose(dest, pstamped)
             rospy.loginfo("Pose transformed to: \n" + str(transposed.pose))
+            print("Transposed: ",transposed)
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             rospy.loginfo("could not load transform: " + src + " -> " + dest)
 
