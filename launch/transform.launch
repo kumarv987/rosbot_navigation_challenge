@@ -1,0 +1,6 @@
+<launch>
+
+    <node name="transform" pkg="rosbot_nav_challenge" type="transform.py" output="screen">
+    </node>
+
+</launch>
