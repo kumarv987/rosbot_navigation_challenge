@@ -6,6 +6,7 @@ import tf
 import tf2_ros
 import tf_conversions
 import geometry_msgs
+from geometry_msgs.msg import PoseStamped
 
 def transform():
     listener = tf.TransformListener()
@@ -28,13 +29,12 @@ def transform():
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             rospy.loginfo("could not load transform: " + src + " -> " + dest)
 
-
         # EXAMPLE
         # Transform a POSE
         try:
             # Create the POSE to transform (1m in x)
             pose = geometry_msgs.msg.Pose()
-            pose.position.x = 1
+            pose.position.x = 0
 
             # Create Stamped pose
             # Need to provide time, and source frame.
@@ -46,8 +46,15 @@ def transform():
 
             # Tranform a given pose
             transposed = listener.transformPose(dest, pstamped)
-            rospy.loginfo("Pose transformed to: \n" + str(transposed.pose))
-            print("Transposed: ",transposed)
+            
+            #Publish the robot's transformed pose to /Path topic
+            pub = rospy.Publisher('/path',PoseStamped,queue_size=1)
+            rate = rospy.Rate(2)
+            message = PoseStamped()
+            message = transposed
+            pub.publish(message)
+            rate.sleep()
+
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             rospy.loginfo("could not load transform: " + src + " -> " + dest)
 
