@@ -1,4 +1,4 @@
-#!/usr/bin/env python  
+#!/usr/bin/env python3
 
 import rospy
 import math
@@ -49,7 +49,7 @@ def transform():
             
             #Publish the robot's transformed pose to /Path topic
             pub = rospy.Publisher('/path',PoseStamped,queue_size=1)
-            rate = rospy.Rate(2)
+            rate = rospy.Rate(5)
             message = PoseStamped()
             message = transposed
             pub.publish(message)
