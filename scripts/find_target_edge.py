@@ -92,8 +92,8 @@ def getTargetPos(odom_msg, laser_msg):
         corner_index = corner_indices[chosen_corner_index]
         # distance of corner point
         corner_dist = distances[corner_index]
-        # convert from 720 laser list to the 270 degrees
-        relative_corner_angle = (corner_index / 720) * 270
+        # convert from 720 laser list to the 270 degrees (1984)
+        relative_corner_angle = (corner_index / 1904) * 360 #unsure if its actually 1904 points 
         # convert to cartesian angle
         relative_corner_angle -= 135  # bring to cart 0
         relative_corner_angle = -relative_corner_angle % 360
