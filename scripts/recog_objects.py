@@ -9,13 +9,18 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from visualization_msgs.msg import Marker
 
 list_marker_id = []
+#started = False
 
 def callback(img_msg):
+    
     if len(img_msg.data) > 0:
-        img_id = img_msg.data[0] - 1
+        img_id = int(img_msg.data[0]) - 1
 
-        
+        print("CHECK ID: ", img_id)
+        #global started
+
         if (img_id > 0):
+            
             if (img_id not in list_marker_id):
                 print("Detected a SIGN")
                 list_marker_id.append(img_id)
@@ -51,7 +56,7 @@ def callback(img_msg):
                 markerObject = Marker()
                 markerObject.header.frame_id = 'map'
 #                markerObject.stamp =  rospy.Time.now()
-                markerObject.id = int(img_id)
+                markerObject.id = img_id
                 markerObject.pose.position.x = image_x
                 markerObject.pose.position.y = image_y
                 markerObject.pose.position.z = 0.2
@@ -59,19 +64,19 @@ def callback(img_msg):
                 markerObject.pose.orientation.y = 0.0 
                 markerObject.pose.orientation.z = 0.0           
                 markerObject.pose.orientation.w = 1.0 
-                markerObject.scale.x = 0.2
-                markerObject.scale.y = 0.2
-                markerObject.scale.z = 0.2
+                markerObject.scale.x = 0.1
+                markerObject.scale.y = 0.1
+                markerObject.scale.z = 0.1
                 markerObject.color.a = 1.0
-                
-
-                pub = rospy.Publisher('/hazards', Marker, queue_size=1)
+                                
                 print(markerObject)
-                pub.publish(markerObject)
+                pubHaz = rospy.Publisher('/hazards', Marker, queue_size=1)
+                pubHaz.publish(markerObject)
                 print("PUBLISHED A HAZARD")
-                
+
         if (img_id == 0):
-            # Initiate the mode
+            # Initiate the move
+            #started = True
             print("Start sign Detected")
             pub = rospy.Publisher("/startDetected", String)
             pub.publish("START")

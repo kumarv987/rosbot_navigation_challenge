@@ -58,13 +58,13 @@ class Waypoint():
             startTime = rospy.get_rostime()
             # Send the command to action server to navigate the map
             self.client.send_goal(goal)
-            while (rospy.get_rostime().secs - startTime.secs) < rospy.Duration(18).secs:
+            while (rospy.get_rostime().secs - startTime.secs) < rospy.Duration(15).secs:
                 continue
                 #print("Time loop X seonds for cancel_goal")
             self.client.cancel_goal()
 
             startTimeFinishedMoveBase = rospy.get_rostime()
-            while (rospy.get_rostime().secs - startTimeFinishedMoveBase.secs) < rospy.Duration(5).secs:
+            while (rospy.get_rostime().secs - startTimeFinishedMoveBase.secs) < rospy.Duration(3).secs:
                 continue
                 #print("Finished Move Base wait 5 seconds")
 
@@ -86,7 +86,7 @@ class Waypoint():
                     stop = True
 
             startTimeFinishedRotation = rospy.get_rostime()
-            while (rospy.get_rostime().secs - startTimeFinishedRotation.secs) < rospy.Duration(5).secs:
+            while (rospy.get_rostime().secs - startTimeFinishedRotation.secs) < rospy.Duration(3).secs:
                 continue
                 #print("Done Rotation now wait 5 seconds")
 
