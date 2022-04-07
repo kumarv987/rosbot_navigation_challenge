@@ -164,6 +164,7 @@ include_directories(
  catkin_install_python(PROGRAMS
   scripts/transform.py
   scripts/waypoints.py
+  scripts/recog_objects.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

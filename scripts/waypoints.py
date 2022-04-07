@@ -3,6 +3,7 @@
 import rospy
 
 import actionlib
+from std_msgs.msg import String
 from geometry_msgs.msg import (
     PoseStamped,
     Twist
@@ -30,8 +31,8 @@ class Waypoint():
 
     def execute(self):
         # Create waypoints
-        waypoint_x = 5
-        waypoint_y = 5
+        waypoint_x = 6
+        waypoint_y = 6
 
         # Ensure move_base action client server is available
         rospy.loginfo('Connecting to move_base...')
@@ -57,13 +58,15 @@ class Waypoint():
             startTime = rospy.get_rostime()
             # Send the command to action server to navigate the map
             self.client.send_goal(goal)
-            while (rospy.get_rostime().secs - startTime.secs) < rospy.Duration(15).secs:
-                print("Time loop X seonds for cancel_goal")
+            while (rospy.get_rostime().secs - startTime.secs) < rospy.Duration(18).secs:
+                continue
+                #print("Time loop X seonds for cancel_goal")
             self.client.cancel_goal()
 
             startTimeFinishedMoveBase = rospy.get_rostime()
             while (rospy.get_rostime().secs - startTimeFinishedMoveBase.secs) < rospy.Duration(5).secs:
-                print("Finished Move Base wait 5 seconds")
+                continue
+                #print("Finished Move Base wait 5 seconds")
 
             speed=0.4
             max_duration = 20
@@ -74,7 +77,7 @@ class Waypoint():
                 self.cmd.linear.x = 0
                 self.cmd.angular.z = speed
                 self.pub_drive.publish(self.cmd)
-                print("Rotate for 20 seconds")
+                #print("Rotate for 20 seconds")
                 rate1.sleep()
                 
                 # Check time
@@ -84,7 +87,8 @@ class Waypoint():
 
             startTimeFinishedRotation = rospy.get_rostime()
             while (rospy.get_rostime().secs - startTimeFinishedRotation.secs) < rospy.Duration(5).secs:
-                print("Done Rotation now wait 5 seconds")
+                continue
+                #print("Done Rotation now wait 5 seconds")
 
             
         # Execute is complete
@@ -95,7 +99,10 @@ class Waypoint():
 if __name__ == '__main__':
     try:
         rospy.init_node('rosbot_waypoint', anonymous=True)
-
+        while True:
+            subs = rospy.wait_for_message('/startDetected',String)
+            if(subs.data == 'START'):
+                break
         wp = Waypoint()
         wp.execute()
     except rospy.ROSInterruptException:

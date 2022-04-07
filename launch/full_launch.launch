@@ -1,0 +1,14 @@
+<launch>
+
+    <!-- Launch Transform -->
+    <include file="$(find rosbot_nav_challenge)/launch/transform.launch" />
+
+    <!-- Launch Mapping & Navigation-->
+    <include file="$(find rosbot_nav_challenge)/launch/find_object.launch" />
+
+    <node name="rosbot_waypoint" pkg="rosbot_nav_challenge" type="waypoints.py" output="screen">
+    </node>
+    <node name="recog_objects" pkg="rosbot_nav_challenge" type="recog_objects.py" output="screen">
+    </node>
+
+</launch>
