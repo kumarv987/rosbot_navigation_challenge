@@ -14,11 +14,7 @@ def callback(img_msg):
     if len(img_msg.data) > 0:
         img_id = img_msg.data[0] - 1
 
-        if (img_id == 0):
-            # Initiate the mode
-            print("Start sign Detected")
-            pub = rospy.Publisher("/startDetected", String)
-            pub.publish("START")
+        
         if (img_id > 0):
             if (img_id not in list_marker_id):
                 print("Detected a SIGN")
@@ -73,6 +69,12 @@ def callback(img_msg):
                 print(markerObject)
                 pub.publish(markerObject)
                 print("PUBLISHED A HAZARD")
+                
+        if (img_id == 0):
+            # Initiate the mode
+            print("Start sign Detected")
+            pub = rospy.Publisher("/startDetected", String)
+            pub.publish("START")
 
 
 # Short ROS Node method
