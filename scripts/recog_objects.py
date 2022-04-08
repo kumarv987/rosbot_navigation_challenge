@@ -63,8 +63,8 @@ def callback(img_msg,pubHaz,pubStart):
             markerObject.pose.orientation.z = 0.0
             markerObject.pose.orientation.w = 1.0 
             markerObject.scale.x = 0.3
-            markerObject.scale.y = 0.1
-            markerObject.scale.z = 0.1
+            markerObject.scale.y = 0.3
+            markerObject.scale.z = 0.3
             markerObject.color.a = 1.0
             markerObject.color.r = 0.0
             markerObject.color.g = 1.0
