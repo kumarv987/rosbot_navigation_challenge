@@ -17,7 +17,7 @@ class Waypoint():
         self.client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
         self.map_frame = rospy.get_param("~map_frame", 'map')
         self.timeout = rospy.get_param("~timeout", 30)
-
+        
         # Drive publisher
         self.pub_drive = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
         self.cmd = Twist()
@@ -40,17 +40,17 @@ class Waypoint():
         if not timer:
             rospy.logerr("Could not connect to move base server, terminating")
             return
-        rospy.loginfo('Connected to move_base.')
+        #rospy.loginfo('Connected to move_base.')
 
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = self.map_frame
         goal.target_pose.pose.position.x = waypoint_x
         goal.target_pose.pose.position.y = waypoint_y
         goal.target_pose.pose.orientation.w = 1
-        rospy.loginfo('Executing move_base goal to position (x,y): %s, %s' %
-                      (goal.target_pose.pose.position.x, goal.target_pose.pose.position.y))
-        rospy.loginfo(
-            "To cancel the goal: 'rostopic pub -1 /move_base/cancel actionlib_msgs/GoalID -- {}'")
+        # rospy.loginfo('Executing move_base goal to position (x,y): %s, %s' %
+        #               (goal.target_pose.pose.position.x, goal.target_pose.pose.position.y))
+        # rospy.loginfo(
+        #     "To cancel the goal: 'rostopic pub -1 /move_base/cancel actionlib_msgs/GoalID -- {}'")
 
 
         # Iterate through waypoints
@@ -58,7 +58,7 @@ class Waypoint():
             startTime = rospy.get_rostime()
             # Send the command to action server to navigate the map
             self.client.send_goal(goal)
-            while (rospy.get_rostime().secs - startTime.secs) < rospy.Duration(15).secs:
+            while (rospy.get_rostime().secs - startTime.secs) < rospy.Duration(18).secs:
                 continue
                 #print("Time loop X seonds for cancel_goal")
             self.client.cancel_goal()
@@ -68,14 +68,14 @@ class Waypoint():
                 continue
                 #print("Finished Move Base wait 5 seconds")
 
-            speed=0.4
-            max_duration = 20
+            speed=0.3
+            max_duration = 15
             t_start = rospy.Time.now()
             rate1 = rospy.Rate(20)
             stop = False
             while (not stop):
                 self.cmd.linear.x = 0
-                self.cmd.angular.z = speed
+                self.cmd.angular.z = -speed
                 self.pub_drive.publish(self.cmd)
                 #print("Rotate for 20 seconds")
                 rate1.sleep()
@@ -89,7 +89,6 @@ class Waypoint():
             while (rospy.get_rostime().secs - startTimeFinishedRotation.secs) < rospy.Duration(3).secs:
                 continue
                 #print("Done Rotation now wait 5 seconds")
-
             
         # Execute is complete
         return 'completed'

@@ -10,22 +10,20 @@ from geometry_msgs.msg import PoseStamped
 
 def transform():
     listener = tf.TransformListener()
-
-    print("--------------------------------")
-    rate = rospy.Rate(5.0)
+    pub = rospy.Publisher('/path',PoseStamped,queue_size=1)
+    rate = rospy.Rate(10)
     while not rospy.is_shutdown():
-        rospy.loginfo("Time:" + str(rospy.Time.now()))
+        #rospy.loginfo("Time:" + str(rospy.Time.now()))
 
-        delay = 0.5
+        delay = 0.2
 
         # EXAMPLE
         # Lookup a tranformation
         try:
-            dest = '/map'
-            src = '/base_link'
+            dest = 'map'
+            src = 'base_link'
             (trans, rot) = listener.lookupTransform(dest, src, rospy.Time.now() - rospy.Duration(delay))
-            rospy.loginfo("Transform received: " + src + " -> " + dest + ": Translation: (" + str(trans) + "), Rotation: (" + str(rot) + ")" )
-
+            #rospy.loginfo("Transform received: " + src + " -> " + dest + ": Translation: (" + str(trans) + "), Rotation: (" + str(rot) + ")" )
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             rospy.loginfo("could not load transform: " + src + " -> " + dest)
 
@@ -48,7 +46,6 @@ def transform():
             transposed = listener.transformPose(dest, pstamped)
             
             #Publish the robot's transformed pose to /Path topic
-            pub = rospy.Publisher('/path',PoseStamped,queue_size=1)
             rate = rospy.Rate(5)
             message = PoseStamped()
             message = transposed
