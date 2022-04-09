@@ -4,14 +4,46 @@ import math
 import rospy
 from std_msgs.msg import Float32MultiArray, Header, String
 from sensor_msgs.msg import LaserScan
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, Pose
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from visualization_msgs.msg import Marker
+import tf
+import tf2_ros
+import tf_conversions
+
 
 list_marker_id = []
 enteredStart = True
 
-def callback(img_msg,pubHaz,pubStart):
+def get_position_robot(listener):
+    delay = 0.5
+    try:
+        dest = 'map'
+        src = 'base_link'
+        (trans, rot) = listener.lookupTransform(dest, src, rospy.Time.now() - rospy.Duration(delay))
+        #rospy.loginfo("Transform received: " + src + " -> " + dest + ": Translation: (" + str(trans) + "), Rotation: (" + str(rot) + ")" )
+    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+        rospy.loginfo("could not load transform: " + src + " -> " + dest)
+
+    pose = Pose()
+    pose.position.x = 0
+
+    # Create Stamped pose
+    # Need to provide time, and source frame.
+    # This is the pose that will be transformed
+    
+    pstamped = PoseStamped()
+    pstamped.header.stamp = rospy.Time.now() - rospy.Duration(delay)
+    pstamped.header.frame_id = src
+    pstamped.pose = pose
+
+    # Tranform a given pose
+    transposed = listener.transformPose(dest, pstamped)
+
+    return transposed
+        
+
+def callback(img_msg,pubHaz,pubStart,listener):
     if (len(img_msg.data) > 0):    
         img_id = int(img_msg.data[0]) - 1
 
@@ -29,9 +61,14 @@ def callback(img_msg,pubHaz,pubStart):
             img_dist = laser_subs.ranges[0]
             
             # Get robots position with map_frame reference
-            robot_pos_subs = rospy.wait_for_message('/path', PoseStamped)
-            pos = robot_pos_subs.pose.position
-            orientation = robot_pos_subs.pose.orientation
+            #robot_pos_subs = rospy.wait_for_message('/path', Path)
+            # pos = robot_pos_subs.poses[-1].pose.position
+            # orientation = robot_pos_subs.poses[-1].pose.orientation
+
+            robot_pos = get_position_robot(listener)
+            pos = robot_pos.pose.position
+            orientation = robot_pos.pose.orientation
+            
             curr_x = pos.x
             curr_y = pos.y
 
@@ -66,8 +103,8 @@ def callback(img_msg,pubHaz,pubStart):
             markerObject.scale.y = 0.3
             markerObject.scale.z = 0.3
             markerObject.color.a = 1.0
-            markerObject.color.r = 0.0
-            markerObject.color.g = 1.0
+            markerObject.color.r = 1.0
+            markerObject.color.g = 0.1
             markerObject.color.b = 0.1
             markerObject.type = Marker.SPHERE
             markerObject.action = Marker.ADD
@@ -88,10 +125,11 @@ if __name__ == '__main__':
         rospy.init_node('recog_objects', anonymous=True)
         pubHaz = rospy.Publisher('/hazards', Marker, queue_size=1)
         pubStart = rospy.Publisher('/startDetected',String, queue_size=1)
+        listener = tf.TransformListener()
         while not rospy.is_shutdown():
             #rospy.Subscriber("/objects", Float32MultiArray, callback)
             obj_message = rospy.wait_for_message('/objects',Float32MultiArray)
-            callback(obj_message,pubHaz,pubStart)
+            callback(obj_message,pubHaz,pubStart,listener)
 
     except rospy.ROSInterruptException:
         pass

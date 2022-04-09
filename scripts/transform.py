@@ -7,15 +7,20 @@ import tf2_ros
 import tf_conversions
 import geometry_msgs
 from geometry_msgs.msg import PoseStamped
+from nav_msgs.msg import Path
+from std_msgs.msg import Header
 
 def transform():
     listener = tf.TransformListener()
-    pub = rospy.Publisher('/path',PoseStamped,queue_size=1)
-    rate = rospy.Rate(10)
+    pub = rospy.Publisher('path',Path,queue_size=1)
+    path = Path()
+    path.header.stamp = rospy.Time.now()
+    path.header.frame_id = 'map'
+    rate = rospy.Rate(0.5)
     while not rospy.is_shutdown():
         #rospy.loginfo("Time:" + str(rospy.Time.now()))
 
-        delay = 0.2
+        delay = 0.5
 
         # EXAMPLE
         # Lookup a tranformation
@@ -46,10 +51,10 @@ def transform():
             transposed = listener.transformPose(dest, pstamped)
             
             #Publish the robot's transformed pose to /Path topic
-            rate = rospy.Rate(5)
-            message = PoseStamped()
-            message = transposed
-            pub.publish(message)
+            path.poses.append(transposed)
+            path.header.stamp = rospy.Time.now() - rospy.Duration(delay)
+            path.header.frame_id = dest
+            pub.publish(path)
             rate.sleep()
 
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
